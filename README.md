@@ -4,8 +4,8 @@
 
 Built this because I kept reading great writeups and then completely forgetting the techniques two weeks later. HuntVault turns writeups into actionable cards with checklists tailored to your skill level, so when you're staring at a target you can actually *find* that IDOR trick you read about.
 
-![HuntVault Extract View](https://raw.githubusercontent.com/logan-sec/huntvault/main/screenshots/extract.png)
-![HuntVault Vault View](https://raw.githubusercontent.com/logan-sec/huntvault/main/screenshots/vault.png)
+![HuntVault Extract View](https://raw.githubusercontent.com/logan-sec/HunterVault/main/screenshots/extract.png)
+![HuntVault Vault View](https://raw.githubusercontent.com/logan-sec/HunterVault/main/screenshots/vault.png)
 
 ## What It Does
 
