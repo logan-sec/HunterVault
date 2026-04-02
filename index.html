@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HuntVault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:         #0d1117;
+      --surface:    #161b22;
+      --surface2:   #21262d;
+      --surface3:   #2d333b;
+      --border:     #30363d;
+      --border2:    #444c56;
+      --text:       #e6edf3;
+      --text-muted: #8b949e;
+      --accent:     #58a6ff;
+      --accent-dim: #1f3a5f;
+      --success:    #3fb950;
+      --warning:    #d29922;
+      --danger:     #f85149;
+      --font:       'JetBrains Mono', 'Courier New', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 13px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── Nav ── */
+    #nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 52px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .logo {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+    }
+
+    .nav-links { display: flex; gap: 0.5rem; }
+
+    .nav-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: var(--font);
+      font-size: 12px;
+      padding: 0.3rem 0.9rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+
+    .nav-btn:hover { color: var(--text); border-color: var(--border2); }
+    .nav-btn.active { color: var(--accent); border-color: var(--accent); background: var(--accent-dim); }
+
+    /* ── Views ── */
+    .view { display: none; padding: 2rem; max-width: 1100px; margin: 0 auto; }
+    .view.active { display: block; }
+
+    /* ── Inputs ── */
+    input, textarea, select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 13px;
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+      outline: none;
+      transition: border-color 0.15s;
+      width: 100%;
+    }
+
+    input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+    input::placeholder, textarea::placeholder { color: var(--text-muted); }
+
+    select option { background: var(--surface2); }
+
+    textarea { resize: vertical; }
+
+    /* ── Buttons ── */
+    .btn {
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 0.5rem 1.25rem;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: opacity 0.15s, background 0.15s;
+    }
+
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-primary { background: var(--accent); color: #0d1117; border-color: var(--accent); }
+    .btn-primary:hover:not(:disabled) { opacity: 0.85; }
+    .btn-secondary { background: var(--surface2); color: var(--text); border-color: var(--border2); }
+    .btn-secondary:hover:not(:disabled) { background: var(--surface3); }
+    .btn-danger { background: transparent; color: var(--danger); border-color: var(--danger); }
+    .btn-danger:hover:not(:disabled) { background: rgba(248, 81, 73, 0.1); }
+
+    /* ── Extract View ── */
+    .extract-header { margin-bottom: 1.5rem; }
+    .extract-header h2 { font-size: 16px; font-weight: 600; margin-bottom: 0.25rem; }
+    .extract-header p { color: var(--text-muted); font-size: 12px; }
+
+    .input-group { margin-bottom: 1rem; }
+    .input-group label { display: block; color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; }
+
+    #extract-form { max-width: 700px; }
+
+    .extract-actions { display: flex; gap: 0.75rem; align-items: center; margin-top: 1.25rem; }
+
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid var(--border2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-banner {
+      background: rgba(248, 81, 73, 0.12);
+      border: 1px solid rgba(248, 81, 73, 0.4);
+      color: var(--danger);
+      border-radius: 6px;
+      padding: 0.6rem 1rem;
+      margin-top: 1rem;
+      font-size: 12px;
+    }
+
+    .success-banner {
+      background: rgba(63, 185, 80, 0.12);
+      border: 1px solid rgba(63, 185, 80, 0.4);
+      color: var(--success);
+      border-radius: 6px;
+      padding: 0.6rem 1rem;
+      margin-top: 1rem;
+      font-size: 12px;
+    }
+
+    /* ── Preview Card ── */
+    #preview-section { margin-top: 2rem; }
+
+    .preview-card {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      padding: 1.5rem;
+      max-width: 700px;
+    }
+
+    .preview-card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .preview-title {
+      font-size: 15px;
+      font-weight: 600;
+      flex: 1;
+    }
+
+    .section-label {
+      color: var(--text-muted);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.35rem;
+      margin-top: 1rem;
+    }
+
+    .preview-text {
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .checklist-items { list-style: none; margin-top: 0.25rem; }
+    .checklist-items li {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-start;
+      padding: 0.3rem 0;
+      font-size: 12px;
+      color: var(--text);
+      border-bottom: 1px solid var(--surface2);
+    }
+    .checklist-items li:last-child { border-bottom: none; }
+    .check-icon { color: var(--accent); flex-shrink: 0; margin-top: 2px; }
+
+    .preview-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .preview-fields .full-width { grid-column: 1 / -1; }
+
+    .preview-save-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+    }
+
+    /* ── Vault View ── */
+    .vault-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .vault-header h2 { font-size: 16px; font-weight: 600; }
+
+    #filters {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    #filter-q { max-width: 180px; }
+    #filters select { max-width: 140px; }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: border-color 0.15s, transform 0.12s;
+    }
+
+    .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+
+    .card-badges {
+      display: flex;
+      gap: 0.4rem;
+      margin-bottom: 0.6rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .topic-badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .topic-xss   { background: rgba(255,107,53,0.2);  color: #ff6b35; }
+    .topic-ssrf  { background: rgba(232,168,56,0.2);  color: #e8a838; }
+    .topic-idor  { background: rgba(168,216,168,0.2); color: #a8d8a8; }
+    .topic-auth  { background: rgba(77,171,247,0.2);  color: #4dabf7; }
+    .topic-sqli  { background: rgba(105,219,124,0.2); color: #69db7c; }
+    .topic-rce   { background: rgba(255,107,107,0.2); color: #ff6b6b; }
+    .topic-lfi   { background: rgba(204,93,232,0.2);  color: #cc5de8; }
+    .topic-csrf  { background: rgba(116,192,252,0.2); color: #74c0fc; }
+    .topic-logic { background: rgba(255,212,59,0.2);  color: #ffd43b; }
+    .topic-recon { background: rgba(56,217,169,0.2);  color: #38d9a9; }
+    .topic-other { background: rgba(141,153,174,0.2); color: #8d99ae; }
+
+    .technique-badge {
+      font-size: 10px;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      background: var(--surface3);
+      color: var(--text-muted);
+      text-transform: lowercase;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      line-height: 1.4;
+    }
+
+    .card-summary {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 0.75rem;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .status-pill {
+      font-size: 10px;
+      padding: 0.15rem 0.5rem;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+
+    .status-want-to-try { background: rgba(88,166,255,0.15); color: var(--accent); border: 1px solid rgba(88,166,255,0.3); }
+    .status-tried       { background: rgba(63,185,80,0.15);  color: var(--success); border: 1px solid rgba(63,185,80,0.3); }
+
+    .stars-novelty { color: var(--warning); font-size: 11px; }
+    .stars-rating  { color: var(--accent);  font-size: 11px; margin-left: auto; }
+
+    .empty-state {
+      color: var(--text-muted);
+      text-align: center;
+      padding: 3rem 1rem;
+      grid-column: 1 / -1;
+      font-size: 13px;
+    }
+
+    /* ── Modal ── */
+    #modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    #modal-overlay.open { display: flex; }
+
+    #modal-content {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      width: min(720px, 100%);
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 1.75rem;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 18px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0.2rem;
+      font-family: var(--font);
+    }
+
+    .modal-close:hover { color: var(--text); }
+
+    .modal-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      padding-right: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 600;
+      flex: 1;
+      line-height: 1.3;
+    }
+
+    .modal-section { margin-top: 1.25rem; }
+
+    .modal-section-label {
+      color: var(--text-muted);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.4rem;
+    }
+
+    .modal-text {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    .source-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 12px;
+      word-break: break-all;
+    }
+
+    .source-link:hover { text-decoration: underline; }
+
+    .modal-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+    }
+
+    .modal-fields .full-width { grid-column: 1 / -1; }
+
+    .modal-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .modal-actions .btn-danger { margin-left: auto; }
+
+    .novelty-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- Nav -->
+  <nav id="nav">
+    <span class="logo">&#x1F512; HuntVault</span>
+    <div class="nav-links">
+      <button class="nav-btn active" id="nav-extract" onclick="switchView('extract')">+ Extract</button>
+      <button class="nav-btn" id="nav-vault" onclick="switchView('vault')">Vault</button>
+    </div>
+  </nav>
+
+  <!-- ── Extract View ── -->
+  <div id="view-extract" class="view active">
+    <div class="extract-header">
+      <h2>Extract Knowledge Card</h2>
+      <p>Paste a URL, raw article text, or both — Claude will extract a structured technique card.</p>
+    </div>
+
+    <div id="extract-form">
+      <div class="input-group">
+        <label for="url-input">Source URL (optional)</label>
+        <input type="url" id="url-input" placeholder="https://example.com/writeup">
+      </div>
+      <div class="input-group">
+        <label for="text-input">Article Text (optional)</label>
+        <textarea id="text-input" rows="8" placeholder="Paste the article content here..."></textarea>
+      </div>
+      <div class="extract-actions">
+        <button class="btn btn-primary" id="extract-btn" onclick="doExtract()">Extract &rarr;</button>
+        <span id="extract-spinner" style="display:none"><span class="spinner"></span></span>
+      </div>
+      <div id="extract-error" style="display:none" class="error-banner"></div>
+      <div id="extract-success" style="display:none" class="success-banner">Card saved! Switching to vault...</div>
+    </div>
+
+    <div id="preview-section" style="display:none">
+      <div class="section-label" style="margin-bottom: 0.75rem;">Preview — review and edit before saving</div>
+      <div class="preview-card">
+        <div class="preview-card-header">
+          <span id="preview-topic-badge" class="topic-badge"></span>
+          <span id="preview-technique-badge" class="technique-badge"></span>
+          <div id="preview-title" class="preview-title"></div>
+        </div>
+
+        <div class="section-label">Summary</div>
+        <div id="preview-summary" class="preview-text"></div>
+
+        <div class="section-label">When to Use</div>
+        <div id="preview-when" class="preview-text"></div>
+
+        <div class="section-label">Testing Checklist</div>
+        <ul id="preview-checklist" class="checklist-items"></ul>
+
+        <div class="section-label">Novelty</div>
+        <div id="preview-novelty" class="novelty-row"></div>
+
+        <div class="preview-fields">
+          <div>
+            <div class="section-label">Your Rating</div>
+            <select id="preview-rating">
+              <option value="">Not yet rated</option>
+              <option value="1">&#9733; 1 — Meh</option>
+              <option value="2">&#9733;&#9733; 2 — Decent</option>
+              <option value="3">&#9733;&#9733;&#9733; 3 — Solid</option>
+              <option value="4">&#9733;&#9733;&#9733;&#9733; 4 — Great</option>
+              <option value="5">&#9733;&#9733;&#9733;&#9733;&#9733; 5 — Must-try</option>
+            </select>
+          </div>
+          <div>
+            <div class="section-label">Status</div>
+            <select id="preview-status">
+              <option value="want to try">Want to Try</option>
+              <option value="tried">Tried</option>
+            </select>
+          </div>
+          <div class="full-width">
+            <div class="section-label">Your Notes</div>
+            <textarea id="preview-notes" rows="3" placeholder="Add your own notes..."></textarea>
+          </div>
+        </div>
+
+        <div class="preview-save-row">
+          <button class="btn btn-primary" onclick="savePreview()">Save to Vault</button>
+          <button class="btn btn-secondary" onclick="clearPreview()">Clear</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Vault View ── -->
+  <div id="view-vault" class="view">
+    <div class="vault-header">
+      <h2>Vault</h2>
+      <div id="filters">
+        <input type="text" id="filter-q" placeholder="Search..." oninput="debounceFilter()">
+        <select id="filter-topic" onchange="applyFilters()">
+          <option value="">All Topics</option>
+          <option value="XSS">XSS</option>
+          <option value="SSRF">SSRF</option>
+          <option value="IDOR">IDOR</option>
+          <option value="Auth">Auth</option>
+          <option value="SQLi">SQLi</option>
+          <option value="RCE">RCE</option>
+          <option value="LFI">LFI</option>
+          <option value="CSRF">CSRF</option>
+          <option value="Logic">Logic</option>
+          <option value="Recon">Recon</option>
+          <option value="Other">Other</option>
+        </select>
+        <select id="filter-status" onchange="applyFilters()">
+          <option value="">All Status</option>
+          <option value="want to try">Want to Try</option>
+          <option value="tried">Tried</option>
+        </select>
+        <select id="filter-rating" onchange="applyFilters()">
+          <option value="">All Ratings</option>
+          <option value="5">&#9733;&#9733;&#9733;&#9733;&#9733; 5</option>
+          <option value="4">&#9733;&#9733;&#9733;&#9733; 4+</option>
+          <option value="3">&#9733;&#9733;&#9733; 3+</option>
+          <option value="2">&#9733;&#9733; 2+</option>
+          <option value="1">&#9733; 1+</option>
+        </select>
+      </div>
+    </div>
+    <div id="card-grid" class="card-grid">
+      <p class="empty-state">Loading...</p>
+    </div>
+  </div>
+
+  <!-- ── Modal ── -->
+  <div id="modal-overlay" onclick="handleOverlayClick(event)">
+    <div id="modal-content">
+      <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ─────────────────────────────────────────────
+  // State
+  // ─────────────────────────────────────────────
+  const state = {
+    cards: [],
+    filters: { topic: '', status: '', rating: '', q: '' },
+    extract: { loading: false, preview: null },
+    modal: { open: false, cardId: null },
+  };
+
+  // ─────────────────────────────────────────────
+  // Utilities
+  // ─────────────────────────────────────────────
+  function escHtml(s) {
+    return String(s ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function topicClass(topic) {
+    const map = {
+      xss: 'topic-xss', ssrf: 'topic-ssrf', idor: 'topic-idor',
+      auth: 'topic-auth', sqli: 'topic-sqli', rce: 'topic-rce',
+      lfi: 'topic-lfi', csrf: 'topic-csrf', logic: 'topic-logic',
+      recon: 'topic-recon', other: 'topic-other',
+    };
+    return map[(topic || 'other').toLowerCase()] || 'topic-other';
+  }
+
+  function renderStars(n, max = 5, filled = '★', empty = '☆') {
+    n = Math.max(0, Math.min(max, parseInt(n) || 0));
+    return filled.repeat(n) + empty.repeat(max - n);
+  }
+
+  function statusClass(status) {
+    return 'status-' + (status || 'want to try').replace(/ /g, '-');
+  }
+
+  // ─────────────────────────────────────────────
+  // API helpers
+  // ─────────────────────────────────────────────
+  const api = {
+    async get(path) {
+      const r = await fetch(path);
+      const data = await r.json();
+      if (!r.ok) throw data;
+      return data;
+    },
+    async post(path, body) {
+      const r = await fetch(path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await r.json();
+      if (!r.ok) throw data;
+      return data;
+    },
+    async put(path, body) {
+      const r = await fetch(path, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await r.json();
+      if (!r.ok) throw data;
+      return data;
+    },
+    async del(path) {
+      const r = await fetch(path, { method: 'DELETE' });
+      const data = await r.json();
+      if (!r.ok) throw data;
+      return data;
+    },
+  };
+
+  // ─────────────────────────────────────────────
+  // View switching
+  // ─────────────────────────────────────────────
+  function switchView(view) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('view-' + view).classList.add('active');
+    document.getElementById('nav-' + view).classList.add('active');
+    if (view === 'vault') loadCards();
+  }
+
+  // ─────────────────────────────────────────────
+  // Extract Flow
+  // ─────────────────────────────────────────────
+  async function doExtract() {
+    const url  = document.getElementById('url-input').value.trim();
+    const text = document.getElementById('text-input').value.trim();
+
+    if (!url && !text) {
+      showExtractError('Please provide a URL, pasted text, or both.');
+      return;
+    }
+
+    setExtractLoading(true);
+    hideExtractMessages();
+    document.getElementById('preview-section').style.display = 'none';
+
+    try {
+      const card = await api.post('/api/extract', { url, text });
+      state.extract.preview = card;
+      renderPreview(card);
+      document.getElementById('preview-section').style.display = 'block';
+      document.getElementById('preview-section').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } catch (e) {
+      showExtractError(e.error || 'Extraction failed. Check the server logs.');
+    } finally {
+      setExtractLoading(false);
+    }
+  }
+
+  function setExtractLoading(on) {
+    state.extract.loading = on;
+    document.getElementById('extract-btn').disabled = on;
+    document.getElementById('extract-spinner').style.display = on ? 'inline-block' : 'none';
+  }
+
+  function showExtractError(msg) {
+    const el = document.getElementById('extract-error');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function hideExtractMessages() {
+    document.getElementById('extract-error').style.display = 'none';
+    document.getElementById('extract-success').style.display = 'none';
+  }
+
+  function renderPreview(card) {
+    const topic = card.topic || 'Other';
+    document.getElementById('preview-topic-badge').textContent = topic;
+    document.getElementById('preview-topic-badge').className = 'topic-badge ' + topicClass(topic);
+    document.getElementById('preview-technique-badge').textContent = card.technique_type || '';
+    document.getElementById('preview-title').textContent = card.title || '';
+    document.getElementById('preview-summary').textContent = card.summary || '';
+    document.getElementById('preview-when').textContent = card.when_to_use || '';
+
+    // Checklist
+    const cl = document.getElementById('preview-checklist');
+    const items = Array.isArray(card.checklist) ? card.checklist : [];
+    cl.innerHTML = items.map(item =>
+      `<li><span class="check-icon">&#x25B6;</span>${escHtml(item)}</li>`
+    ).join('') || '<li><span style="color:var(--text-muted)">No checklist items.</span></li>';
+
+    // Novelty
+    document.getElementById('preview-novelty').innerHTML =
+      `<span class="stars-novelty">${renderStars(card.novelty_rating)}</span>
+       <span style="color:var(--text-muted)">novelty ${card.novelty_rating || '?'}/5</span>`;
+
+    // Reset editable fields
+    document.getElementById('preview-rating').value = '';
+    document.getElementById('preview-status').value = 'want to try';
+    document.getElementById('preview-notes').value = '';
+  }
+
+  async function savePreview() {
+    if (!state.extract.preview) return;
+
+    const card = {
+      ...state.extract.preview,
+      rating: document.getElementById('preview-rating').value || null,
+      status: document.getElementById('preview-status').value,
+      notes:  document.getElementById('preview-notes').value.trim(),
+    };
+    if (card.rating) card.rating = parseInt(card.rating);
+
+    try {
+      await api.post('/api/cards', card);
+      document.getElementById('preview-section').style.display = 'none';
+      document.getElementById('extract-success').style.display = 'block';
+      state.extract.preview = null;
+      document.getElementById('url-input').value = '';
+      document.getElementById('text-input').value = '';
+      setTimeout(() => {
+        document.getElementById('extract-success').style.display = 'none';
+        switchView('vault');
+      }, 900);
+    } catch (e) {
+      showExtractError(e.error || 'Failed to save card.');
+    }
+  }
+
+  function clearPreview() {
+    state.extract.preview = null;
+    document.getElementById('preview-section').style.display = 'none';
+    hideExtractMessages();
+  }
+
+  // ─────────────────────────────────────────────
+  // Vault
+  // ─────────────────────────────────────────────
+  async function loadCards() {
+    const p = new URLSearchParams();
+    if (state.filters.topic)  p.set('topic',  state.filters.topic);
+    if (state.filters.status) p.set('status', state.filters.status);
+    if (state.filters.rating) p.set('rating', state.filters.rating);
+    if (state.filters.q)      p.set('q',      state.filters.q);
+
+    try {
+      state.cards = await api.get('/api/cards?' + p.toString());
+    } catch (e) {
+      state.cards = [];
+    }
+    renderVault();
+  }
+
+  function renderVault() {
+    const grid = document.getElementById('card-grid');
+
+    if (state.cards.length === 0) {
+      grid.innerHTML = '<p class="empty-state">No cards found. Extract your first technique above.</p>';
+      return;
+    }
+
+    grid.innerHTML = state.cards.map(card => {
+      const topic = card.topic || 'Other';
+      const summary = (card.summary || '').slice(0, 130);
+      const ellipsis = (card.summary || '').length > 130 ? '&hellip;' : '';
+      return `
+        <div class="card" onclick="openModal(${card.id})">
+          <div class="card-badges">
+            <span class="topic-badge ${topicClass(topic)}">${escHtml(topic)}</span>
+            ${card.technique_type ? `<span class="technique-badge">${escHtml(card.technique_type)}</span>` : ''}
+          </div>
+          <div class="card-title">${escHtml(card.title)}</div>
+          <div class="card-summary">${escHtml(summary)}${ellipsis}</div>
+          <div class="card-footer">
+            <span class="stars-novelty" title="Novelty">${renderStars(card.novelty_rating)}</span>
+            <span class="status-pill ${statusClass(card.status)}">${escHtml(card.status || 'want to try')}</span>
+            ${card.rating ? `<span class="stars-rating">${renderStars(card.rating)}</span>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  let filterTimer = null;
+  function debounceFilter() {
+    clearTimeout(filterTimer);
+    filterTimer = setTimeout(applyFilters, 300);
+  }
+
+  function applyFilters() {
+    state.filters.topic  = document.getElementById('filter-topic').value;
+    state.filters.status = document.getElementById('filter-status').value;
+    state.filters.rating = document.getElementById('filter-rating').value;
+    state.filters.q      = document.getElementById('filter-q').value;
+    loadCards();
+  }
+
+  // ─────────────────────────────────────────────
+  // Modal
+  // ─────────────────────────────────────────────
+  function openModal(cardId) {
+    const card = state.cards.find(c => c.id === cardId);
+    if (!card) return;
+    state.modal = { open: true, cardId };
+    renderModal(card);
+    document.getElementById('modal-overlay').classList.add('open');
+  }
+
+  function closeModal() {
+    state.modal.open = false;
+    document.getElementById('modal-overlay').classList.remove('open');
+  }
+
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  }
+
+  function renderModal(card) {
+    const topic = card.topic || 'Other';
+    const checklist = Array.isArray(card.checklist) ? card.checklist : [];
+    const checklistHtml = checklist.map(item =>
+      `<li><span class="check-icon">&#x25B6;</span>${escHtml(item)}</li>`
+    ).join('') || '<li><span style="color:var(--text-muted)">No checklist items.</span></li>';
+
+    const sourceHtml = card.source_url
+      ? `<a class="source-link" href="${escHtml(card.source_url)}" target="_blank" rel="noopener">${escHtml(card.source_url)}</a>`
+      : '<span style="color:var(--text-muted)">None</span>';
+
+    const ratingOptions = ['', '1', '2', '3', '4', '5'].map(v => {
+      const labels = { '': 'Not rated', '1': '★ 1', '2': '★★ 2', '3': '★★★ 3', '4': '★★★★ 4', '5': '★★★★★ 5' };
+      const sel = String(card.rating || '') === v ? 'selected' : '';
+      return `<option value="${v}" ${sel}>${labels[v]}</option>`;
+    }).join('');
+
+    const statusOptions = ['want to try', 'tried'].map(v => {
+      const sel = (card.status || 'want to try') === v ? 'selected' : '';
+      return `<option value="${v}" ${sel}>${v === 'want to try' ? 'Want to Try' : 'Tried'}</option>`;
+    }).join('');
+
+    document.getElementById('modal-body').innerHTML = `
+      <div class="modal-header">
+        <span class="topic-badge ${topicClass(topic)}">${escHtml(topic)}</span>
+        ${card.technique_type ? `<span class="technique-badge">${escHtml(card.technique_type)}</span>` : ''}
+        <div class="modal-title">${escHtml(card.title)}</div>
+      </div>
+
+      <div class="novelty-row">
+        <span class="stars-novelty">${renderStars(card.novelty_rating)}</span>
+        <span style="color:var(--text-muted)">novelty ${card.novelty_rating || '?'}/5</span>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-label">Summary</div>
+        <div class="modal-text">${escHtml(card.summary || '')}</div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-label">When to Use</div>
+        <div class="modal-text">${escHtml(card.when_to_use || '')}</div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-label">Testing Checklist</div>
+        <ul class="checklist-items">${checklistHtml}</ul>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-label">Source</div>
+        ${sourceHtml}
+      </div>
+
+      <div class="modal-fields">
+        <div>
+          <div class="modal-section-label">Your Rating</div>
+          <select id="modal-rating">${ratingOptions}</select>
+        </div>
+        <div>
+          <div class="modal-section-label">Status</div>
+          <select id="modal-status">${statusOptions}</select>
+        </div>
+        <div class="full-width">
+          <div class="modal-section-label">Your Notes</div>
+          <textarea id="modal-notes" rows="4" placeholder="Add notes...">${escHtml(card.notes || '')}</textarea>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-primary" onclick="saveModalEdits(${card.id})">Save Edits</button>
+        <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+        <button class="btn btn-danger" onclick="deleteCard(${card.id})">Delete</button>
+      </div>`;
+  }
+
+  async function saveModalEdits(id) {
+    const updates = {
+      notes:  document.getElementById('modal-notes').value,
+      status: document.getElementById('modal-status').value,
+      rating: document.getElementById('modal-rating').value
+               ? parseInt(document.getElementById('modal-rating').value)
+               : null,
+    };
+
+    try {
+      const updated = await api.put('/api/cards/' + id, updates);
+      const idx = state.cards.findIndex(c => c.id === id);
+      if (idx !== -1) state.cards[idx] = updated;
+      closeModal();
+      renderVault();
+    } catch (e) {
+      alert('Save failed: ' + (e.error || 'unknown error'));
+    }
+  }
+
+  async function deleteCard(id) {
+    if (!confirm('Delete this card? This cannot be undone.')) return;
+    try {
+      await api.del('/api/cards/' + id);
+      state.cards = state.cards.filter(c => c.id !== id);
+      closeModal();
+      renderVault();
+    } catch (e) {
+      alert('Delete failed: ' + (e.error || 'unknown error'));
+    }
+  }
+
+  // ─────────────────────────────────────────────
+  // Keyboard
+  // ─────────────────────────────────────────────
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && state.modal.open) closeModal();
+  });
+
+  // ─────────────────────────────────────────────
+  // Init
+  // ─────────────────────────────────────────────
+  // Preload vault count for nav context (optional, non-blocking)
+  api.get('/api/cards').then(cards => {
+    if (cards.length > 0) {
+      document.getElementById('nav-vault').textContent = `Vault (${cards.length})`;
+    }
+  }).catch(() => {});
+</script>
+</body>
+</html>

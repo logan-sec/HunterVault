@@ -1,0 +1,17 @@
+# Secrets
+.env
+
+# Database (personal data)
+*.db
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Claude
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
