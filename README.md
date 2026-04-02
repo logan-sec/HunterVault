@@ -24,18 +24,28 @@ Everything runs locally. Your data stays in a SQLite file on your machine.
 git clone https://github.com/logan-sec/HunterVault.git
 cd HunterVault
 
+# Set up a virtual environment
+python3 -m venv venv
+source venv/bin/activate        # On Windows: venv\Scripts\activate
+
 # Install dependencies
 pip install -r requirements.txt
 
 # Set up your API key
-cp .env.example .env
-# Edit .env and paste your real key
+echo "ANTHROPIC_API_KEY=your-key-here" > .env
+# Replace your-key-here with your actual Anthropic API key
 
 # Run it
 python server.py
 ```
 
 Open [http://127.0.0.1:8765](http://127.0.0.1:8765) and start extracting.
+
+> **Note:** Every time you open a new terminal, activate the venv again before running:
+> ```bash
+> source venv/bin/activate        # On Windows: venv\Scripts\activate
+> python server.py
+> ```
 
 ## Customize Your Profile
 
@@ -56,12 +66,11 @@ HUNTER_PROFILE = {
 ## Project Structure
 
 ```
-huntvault/
+HunterVault/
 ├── server.py          # Python HTTP server + Claude API integration
 ├── index.html         # Single-file frontend (no build step)
 ├── config.py          # API key loader + hunter profile
 ├── requirements.txt   # Python dependencies
-├── .env.example       # API key template
 └── .gitignore
 ```
 
