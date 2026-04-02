@@ -21,7 +21,7 @@ Everything runs locally. Your data stays in a SQLite file on your machine.
 
 ```bash
 # Clone the repo
-git clone https://github.com/logan-sec/huntvault.git
+git clone https://github.com/logan-sec/HunterVault.git
 cd huntvault
 
 # Install dependencies
